@@ -2,15 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { login, logOut, refresh, register } from './authOperations';
-import { postImage, postServer } from './serversOperations';
+import { getAllServers, getAllUserServers, postImage, postServer } from './serversOperations';
 import { RootState } from './store';
 
 interface IServer {
+    id: number,
     name: string,
     date: Date,
     rates: string,
     likes: number,
-    disslikes: number
+    disslikes: number,
+    url: string
 }
 interface IAuthState {
     user: { email: string, id: number | null };
@@ -26,7 +28,8 @@ interface IRootState {
     loading: boolean;
     error: unknown;
     modal: boolean
-    verify: string | null
+    verify: string | null,
+    allServers: []
 }
 const initialState: IRootState = {
     auth: {
@@ -34,6 +37,7 @@ const initialState: IRootState = {
         admin: { id: '', email: '', name: '' },
         servers: [],
     },
+    allServers: [],
     verify: null,
     modal: false,
     token: null,
@@ -102,7 +106,6 @@ const serversSlice = createSlice({
             state.loading = true;
             state.error = null;
         }).addCase(postServer.fulfilled, (state, action) => {
-            console.log(action.payload);
 
 
         }).addCase(postServer.rejected, (state, action) => {
@@ -112,10 +115,28 @@ const serversSlice = createSlice({
             state.loading = true;
             state.error = null;
         }).addCase(postImage.fulfilled, (state, action) => {
-            console.log('img', action.payload);
-
-
+            state.loading = false;
         }).addCase(postImage.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        }).addCase(getAllUserServers.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        }).addCase(getAllUserServers.fulfilled, (state, action) => {
+            console.log(action.payload);
+            state.auth.servers = action.payload.data;
+            state.loading = false;
+        }).addCase(getAllUserServers.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        }).addCase(getAllServers.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        }).addCase(getAllServers.fulfilled, (state, action) => {
+            console.log(action.payload);
+            state.allServers = action.payload.data;
+            state.loading = false;
+        }).addCase(getAllServers.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
         })
@@ -134,3 +155,5 @@ export const { setModal } = serversSlice.actions;
 export const getModal = (state: RootState) => state.servers.modal;
 export const getToken = (state: RootState) => state.servers.token;
 export const getUserId = (state: RootState) => state.servers.auth.user.id;
+export const getUserServers = (state: RootState) => state.servers.auth.servers;
+export const getAllServersAll = (state: RootState) => state.servers.allServers;

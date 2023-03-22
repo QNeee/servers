@@ -1,17 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { LinkItem } from "../App.styled";
 import { Logo, LogoContainer, MenuLi, MenuButton, MenuContainer, MenuIcon, MenuList } from "./Layout.styled";
 import { useDispatch, useSelector } from "react-redux";
-import { getModal, getToken, setModal, } from "../../Redux/serversSlice";
+import { getAllServersAll, getModal, getToken, getUserId, setModal, } from "../../Redux/serversSlice";
 import { logOut } from "../../Redux/authOperations";
 import { AppDispatch } from "../../Redux/store";
+import { ServerDislikes, ServerImage, ServerLikes, ServerTitle, ServerRating, Server, Container } from "../UserServers/UserServers.styled";
+import { getAllServers } from "../../Redux/serversOperations";
 
 export const Layout: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const { pathname } = useLocation();
   const modal = useSelector(getModal);
   const token = useSelector(getToken);
+  const allServer = useSelector(getAllServersAll);
+  const userId = useSelector(getUserId);
+  useEffect(() => {
+    if (pathname === '/' && userId)
+      dispatch(getAllServers());
+  }, [dispatch, pathname, userId])
   const onClickMenu = (): void => {
     !modal ? dispatch(setModal(true)) : dispatch(setModal(false));
   }
@@ -52,6 +60,16 @@ export const Layout: React.FC = () => {
         </MenuLi>
       </MenuList>
     </MenuContainer>}
-    {pathname === '/' && <div>alo</div>}
+    {pathname === '/' && !modal && <Container>
+      {allServer.length > 0 && allServer.map((item: { id: number, name: string, rates: string, date: Date, url: string, likes: number, disslikes: number }) =>
+        <Server key={item.id}>
+          <ServerTitle>{item.name}</ServerTitle>
+          <ServerRating>{item.rates}</ServerRating>
+          <ServerImage src={item.url} alt={item.url} />
+          <ServerLikes>likes:{item.likes}</ServerLikes>
+          <ServerDislikes>disslikes:{item.disslikes}</ServerDislikes>
+        </Server>)
+      }
+    </Container >}
   </div>
 }

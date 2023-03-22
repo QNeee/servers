@@ -9,6 +9,7 @@ import { Container } from './App.styled';
 import { Auth } from './Auth/Auth';
 import { Home } from './Home/Home';
 import { Layout } from './Layout/Layout';
+import { UserServers } from './UserServers/UserServers';
 
 export const App: React.FC = () => {
   const token = useSelector(getToken);
@@ -23,6 +24,7 @@ export const App: React.FC = () => {
       <Route path='login' element={!token ? <Auth /> : <Navigate to='/home' />} />
       <Route path='home' element={token ? <Home /> : <Navigate to='/login' />} >
         <Route path='add' element={<AddServer />} />
+        <Route path='your-servers' element={<UserServers />} />
       </Route>
     </Route>
 

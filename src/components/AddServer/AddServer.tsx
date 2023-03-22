@@ -26,10 +26,9 @@ export const AddServer: React.FC = () => {
         e.preventDefault();
         const { name, rates, date, time } = form;
         if (!name || !rates || !date || !file || !time) return;
-        const server = await dispatch(postServer(form));
-        if (server) {
-            dispatch(postImage(file));
-        }
+        await dispatch(postImage(file));
+        dispatch(postServer(form));
+
     }
     return <Form onSubmit={onSubmit}>
         <Label>Name<Input type="text" name="name" value={form.name} onChange={inputHandler} /></Label>
